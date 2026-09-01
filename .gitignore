@@ -1,9 +1,21 @@
 # Environment-specific configuration
 .env
 .env.local
-.env.*.local
+.env.*
+!.env.example
+!**/.env.example
 agent/.env
 agent/.bedrock_agentcore.yaml
+cognito_config.json
+**/cognito_config.json
+.aws/
+**/.aws/
+credentials.csv
+aws_access_keys.csv
+*.pem
+*.key
+*.p12
+*.pfx
 
 # Build outputs
 dist/

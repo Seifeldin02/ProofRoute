@@ -1,0 +1,1 @@
+Built a Python FastAPI project that implemented REST APIs backed by SQL for 500 users. Familiar with Git version control.

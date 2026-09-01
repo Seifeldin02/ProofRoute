@@ -1,0 +1,182 @@
+<main id="proof-content" class="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-6 sm:py-8 space-y-6" aria-live="polite">
+    <div id="proof-loading" class="htmx-indicator fixed inset-0 z-50 flex items-center justify-center bg-black/25 backdrop-blur-sm">
+        <div class="card flex items-center gap-3 px-5 py-4 shadow-2xl">
+            <span class="h-5 w-5 rounded-full border-2 border-primary-500 border-t-transparent animate-spin"></span>
+            <span class="font-semibold" style="color: var(--text);">Verifying evidence…</span>
+        </div>
+    </div>
+
+    <section class="relative overflow-hidden rounded-3xl p-6 sm:p-8 text-white shadow-xl" style="background: linear-gradient(135deg, #111827 0%, var(--primary) 58%, var(--secondary) 100%);">
+        <div class="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-2xl"></div>
+        <div class="relative flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+            <div class="max-w-3xl">
+                <div class="mb-3 flex flex-wrap items-center gap-2 text-xs font-mono uppercase tracking-[0.16em] text-white/75">
+                    <span class="rounded-full border border-white/20 bg-white/10 px-3 py-1">Riyadh career proof</span>
+                    <span class="rounded-full border border-white/20 bg-white/10 px-3 py-1">Deterministic scoring</span>
+                    <span class="rounded-full border border-white/20 bg-white/10 px-3 py-1">{{ dataset_source|replace('_', ' ') }}</span>
+                </div>
+                <h1 class="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight">Turn claimed skills into evidence.</h1>
+                <p class="mt-4 max-w-2xl text-base sm:text-lg leading-relaxed text-white/85">ProofRoute finds the smallest skill you can prove next that materially improves your readiness and job matches.</p>
+            </div>
+            {% if has_profile %}
+            <div class="shrink-0 rounded-2xl border border-white/20 bg-black/15 p-5 min-w-[220px] backdrop-blur">
+                <p class="text-xs uppercase tracking-[0.16em] text-white/70">{{ target_role }}</p>
+                <div class="mt-2 flex items-end gap-2"><span class="tnum text-5xl font-bold">{{ readiness }}</span><span class="pb-1 text-xl text-white/75">/100</span></div>
+                <div class="mt-3 h-2 overflow-hidden rounded-full bg-white/20"><div class="h-full rounded-full bg-white" style="width: {{ readiness }}%"></div></div>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    {% if persistence_warning %}
+    <div class="rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800" role="status">
+        <strong>Persistence status:</strong> {{ persistence_warning }}
+    </div>
+    {% endif %}
+
+    {% if validation_errors %}
+    <div class="rounded-2xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
+        {% for field, message in validation_errors.items() %}<p><strong>{{ field|replace('_', ' ')|title }}:</strong> {{ message }}</p>{% endfor %}
+    </div>
+    {% endif %}
+
+    {% if not has_profile %}
+    <section class="card max-w-4xl mx-auto overflow-hidden">
+        <div class="grid lg:grid-cols-[0.85fr_1.15fr]">
+            <div class="p-6 sm:p-8 text-white" style="background: linear-gradient(150deg, #172033, #312e81);">
+                <p class="text-xs font-mono uppercase tracking-[0.18em] text-indigo-200">Step 1 · Candidate profile</p>
+                <h2 class="mt-3 font-display text-2xl sm:text-3xl font-bold">Paste your CV. See what employers can verify.</h2>
+                <ul class="mt-6 space-y-3 text-sm text-indigo-100">
+                    <li class="flex gap-3"><span class="text-emerald-300">●</span><span><strong>Demonstrated</strong> — backed by project or measurable evidence.</span></li>
+                    <li class="flex gap-3"><span class="text-amber-300">●</span><span><strong>Unverified</strong> — claimed, but still needs proof.</span></li>
+                    <li class="flex gap-3"><span class="text-rose-300">●</span><span><strong>Missing</strong> — demanded by the Riyadh market.</span></li>
+                </ul>
+            </div>
+            <form class="p-6 sm:p-8" method="post" action="/proof/profile" hx-post="/proof/profile" hx-target="#proof-content" hx-swap="outerHTML" hx-indicator="#proof-loading">
+                <label for="cv_text" class="block font-display text-lg font-semibold" style="color: var(--text);">CV or project summary</label>
+                <p class="mt-1 text-sm" style="color: var(--text-muted);">Use 50–10,000 characters. Concrete projects and outcomes count as evidence.</p>
+                <textarea id="cv_text" name="cv_text" required minlength="50" maxlength="10000" rows="11" oninput="this.form.querySelector('[data-cv-count]').textContent=this.value.length" class="mt-4 w-full rounded-2xl border px-4 py-3 text-sm leading-6 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20" placeholder="Example: Built a Python FastAPI project that implemented REST APIs backed by SQL for 500 users…">{{ cv_text }}</textarea>
+                <div class="mt-2 flex items-center justify-between text-xs" style="color: var(--text-subtle);"><span>Your CV stays out of application logs.</span><span><span data-cv-count>{{ cv_text|length }}</span>/10,000</span></div>
+                <button type="submit" class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 px-5 py-3 font-semibold text-white shadow-lg shadow-primary-600/20 transition hover:bg-primary-700 active:scale-[0.99]">
+                    Analyze my evidence <span aria-hidden="true">→</span>
+                </button>
+            </form>
+        </div>
+    </section>
+    {% else %}
+    <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <article class="card p-5"><p class="text-xs font-mono uppercase tracking-wider" style="color: var(--text-subtle);">Readiness</p><p class="tnum mt-2 text-3xl font-bold text-primary-600">{{ readiness }}%</p><p class="mt-1 text-sm" style="color: var(--text-muted);">Weighted by real dataset frequency</p></article>
+        <article class="card p-5"><p class="text-xs font-mono uppercase tracking-wider" style="color: var(--text-subtle);">Strong matches</p><p class="tnum mt-2 text-3xl font-bold text-emerald-600">{{ strong_match_count }}</p><p class="mt-1 text-sm" style="color: var(--text-muted);">Jobs at 60%+ demonstrated coverage</p></article>
+        <article class="card p-5"><p class="text-xs font-mono uppercase tracking-wider" style="color: var(--text-subtle);">Next gap</p><p class="mt-2 text-xl font-bold" style="color: var(--text);">{{ gap.skill_name if gap else 'Route complete' }}</p><p class="mt-1 text-sm" style="color: var(--text-muted);">{{ gap.market_frequency ~ '% market demand' if gap else 'All scored skills demonstrated' }}</p></article>
+        <article class="card p-5"><p class="text-xs font-mono uppercase tracking-wider" style="color: var(--text-subtle);">Market source</p><p class="mt-2 text-lg font-bold" style="color: var(--text);">{% if dataset_source == 'riyadh_jobs.json' %}Curated Riyadh roles{% else %}Development fallback{% endif %}</p><p class="mt-1 text-sm" style="color: var(--text-muted);">{{ persistence_status|replace('_', ' ')|title }} persistence</p></article>
+    </section>
+
+    <section>
+        <div class="mb-4 flex items-end justify-between gap-4"><div><p class="text-xs font-mono uppercase tracking-[0.16em] text-primary-600">Evidence map</p><h2 class="font-display text-2xl font-bold" style="color: var(--text);">Skill states</h2></div><span class="text-xs" style="color: var(--text-subtle);">Frequency = share of dataset jobs requesting the skill</span></div>
+        <div class="grid proof-grid gap-4">
+            {% set group_styles = {
+                'Demonstrated': ('emerald', 'Backed by evidence'),
+                'Unverified': ('amber', 'Claimed, not yet proven'),
+                'Missing': ('rose', 'High-demand market gap')
+            } %}
+            {% for state_name in ['Demonstrated', 'Unverified', 'Missing'] %}
+            {% set style = group_styles[state_name] %}
+            <article class="card overflow-hidden">
+                <div class="flex items-center justify-between border-b px-5 py-4">
+                    <div><h3 class="font-display font-semibold" style="color: var(--text);">{{ state_name }}</h3><p class="text-xs" style="color: var(--text-subtle);">{{ style[1] }}</p></div>
+                    <span class="tnum rounded-full px-2.5 py-1 text-xs font-semibold {% if state_name == 'Demonstrated' %}bg-emerald-100 text-emerald-700{% elif state_name == 'Unverified' %}bg-amber-100 text-amber-700{% else %}bg-rose-100 text-rose-700{% endif %}">{{ skill_groups[state_name]|length }}</span>
+                </div>
+                <div class="p-4 space-y-3">
+                    {% for skill in skill_groups[state_name] %}
+                    <div class="rounded-xl border p-3" style="background: var(--surface-2);">
+                        <div class="flex items-center justify-between gap-3"><span class="font-semibold" style="color: var(--text);">{{ skill.name }}</span><span class="tnum rounded-full bg-white/70 px-2 py-1 text-xs" style="color: var(--text-muted);">{{ skill.market_frequency }}%</span></div>
+                        {% if skill.evidence %}<p class="mt-2 line-clamp-2 text-xs leading-relaxed" style="color: var(--text-subtle);">{{ skill.evidence }}</p>{% endif %}
+                    </div>
+                    {% else %}<p class="py-6 text-center text-sm" style="color: var(--text-subtle);">No skills in this state.</p>{% endfor %}
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    {% if gap %}
+    <section class="card overflow-hidden border-primary-200">
+        <div class="grid lg:grid-cols-[1fr_auto] lg:items-center gap-5 p-6">
+            <div><p class="text-xs font-mono uppercase tracking-[0.16em] text-primary-600">Highest-impact gap</p><h2 class="mt-1 font-display text-2xl font-bold" style="color: var(--text);">{{ gap.skill_name }}</h2><p class="mt-2 max-w-3xl text-sm leading-6" style="color: var(--text-muted);">{{ gap.rationale }}</p></div>
+            <div class="grid grid-cols-3 gap-2 text-center">
+                <div class="rounded-xl bg-primary-50 px-3 py-3"><p class="tnum text-xl font-bold text-primary-700">{{ gap.priority_score }}</p><p class="text-[10px] uppercase text-primary-600">Impact</p></div>
+                <div class="rounded-xl bg-blue-50 px-3 py-3"><p class="tnum text-xl font-bold text-blue-700">{{ gap.market_frequency }}%</p><p class="text-[10px] uppercase text-blue-600">Demand</p></div>
+                <div class="rounded-xl bg-emerald-50 px-3 py-3"><p class="tnum text-xl font-bold text-emerald-700">{{ gap.opportunity_count }}</p><p class="text-[10px] uppercase text-emerald-600">Unlocks</p></div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <section class="grid xl:grid-cols-[0.9fr_1.1fr] gap-6 items-start">
+        <article class="card overflow-hidden">
+            <div class="border-b p-5"><p class="text-xs font-mono uppercase tracking-[0.16em] text-primary-600">Proof challenge · under 30 minutes</p><h2 class="mt-1 font-display text-xl font-bold" style="color: var(--text);">{{ challenge.title }}</h2></div>
+            <div class="p-5 space-y-5">
+                <p class="text-sm leading-6" style="color: var(--text-muted);">{{ challenge.statement }}</p>
+                <div><h3 class="text-sm font-semibold" style="color: var(--text);">Required signature</h3><pre class="proof-code mt-2 overflow-x-auto rounded-xl bg-slate-950 p-3 text-sm text-slate-100"><code>{{ challenge.signature }}</code></pre></div>
+                <div><h3 class="text-sm font-semibold" style="color: var(--text);">Pass criteria</h3><ul class="mt-2 space-y-2 text-sm" style="color: var(--text-muted);">{% for criterion in challenge.criteria %}<li class="flex gap-2"><span class="text-primary-500">✓</span><span>{{ criterion }}</span></li>{% endfor %}</ul></div>
+                <div class="grid sm:grid-cols-3 gap-2">{% for example in challenge.examples %}<div class="rounded-xl border p-3 text-xs"><p class="font-mono" style="color: var(--text-subtle);">Input</p><code class="mt-1 block">{{ example.input }}</code><p class="mt-2 font-mono" style="color: var(--text-subtle);">Expected</p><code class="mt-1 block text-emerald-600">{{ example.expected }}</code></div>{% endfor %}</div>
+            </div>
+        </article>
+
+        <article class="card overflow-hidden">
+            <div class="border-b p-5 flex items-center justify-between gap-3"><div><p class="text-xs font-mono uppercase tracking-[0.16em] text-primary-600">Executable evidence</p><h2 class="mt-1 font-display text-xl font-bold" style="color: var(--text);">Submit your test</h2></div><span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-mono text-slate-700">Python 3</span></div>
+            <form class="p-5" method="post" action="/proof/evaluate" hx-post="/proof/evaluate" hx-target="#proof-content" hx-swap="outerHTML" hx-indicator="#proof-loading">
+                <input type="hidden" name="snapshot_message" value="{{ snapshot_message }}">
+                <label for="code" class="sr-only">Python test submission</label>
+                <textarea id="code" name="code" required maxlength="10000" rows="14" spellcheck="false" class="proof-code w-full rounded-xl border bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20">{{ code_submission or challenge.starter_code }}</textarea>
+                <div class="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"><p class="text-xs" style="color: var(--text-subtle);">Runs against one correct implementation and four deterministic hidden mutants.</p><button type="submit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 font-semibold text-white transition hover:bg-primary-700 active:scale-[0.99]">Run proof <span aria-hidden="true">▶</span></button></div>
+            </form>
+
+            {% if evaluation %}
+            <div class="border-t p-5 {% if evaluation.status == 'passed' %}bg-emerald-50{% elif evaluation.status == 'failed' %}bg-amber-50{% else %}bg-red-50{% endif %}">
+                <div class="flex items-start justify-between gap-4"><div><p class="text-xs font-mono uppercase tracking-wider">Evaluation result</p><h3 class="mt-1 text-xl font-bold {% if evaluation.status == 'passed' %}text-emerald-700{% elif evaluation.status == 'failed' %}text-amber-700{% else %}text-red-700{% endif %}">{{ evaluation.status|upper }}</h3></div><code class="text-[10px] text-gray-500">{{ evaluation.outcome_id }}</code></div>
+                <p class="mt-3 text-sm text-gray-700">{{ evaluation.hint or evaluation.error }}</p>
+                {% if evaluation.cases %}<div class="mt-4 grid sm:grid-cols-2 gap-2">{% for case in evaluation.cases %}<div class="rounded-lg border bg-white/70 p-3"><div class="flex items-center justify-between gap-2"><code class="text-xs">{{ case.name }}</code><span class="text-xs font-bold {% if case.status == 'passed' %}text-emerald-600{% else %}text-red-600{% endif %}">{{ case.status }}</span></div><p class="mt-1 text-xs text-gray-600">{{ case.detail }}</p></div>{% endfor %}</div>{% endif %}
+            </div>
+            {% endif %}
+        </article>
+    </section>
+
+    {% if diff %}
+    <section class="overflow-hidden rounded-3xl border border-emerald-300 bg-emerald-50 shadow-lg">
+        <div class="p-6 sm:p-8"><p class="text-xs font-mono uppercase tracking-[0.16em] text-emerald-700">Evidence accepted · {{ diff.demonstrated_skill }} is now Demonstrated</p><h2 class="mt-2 font-display text-2xl font-bold text-emerald-950">Your proof changed the route.</h2>
+            <div class="mt-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div class="rounded-2xl bg-white p-4"><p class="text-xs text-gray-500">Readiness before</p><p class="tnum mt-1 text-3xl font-bold text-gray-700">{{ diff.previous_score }}%</p></div>
+                <div class="rounded-2xl bg-white p-4"><p class="text-xs text-gray-500">Readiness now</p><p class="tnum mt-1 text-3xl font-bold text-emerald-700">{{ diff.new_score }}% <span class="text-sm">+{{ diff.score_delta }}</span></p></div>
+                <div class="rounded-2xl bg-white p-4"><p class="text-xs text-gray-500">Matches before</p><p class="tnum mt-1 text-3xl font-bold text-gray-700">{{ diff.previous_match_count }}</p></div>
+                <div class="rounded-2xl bg-white p-4"><p class="text-xs text-gray-500">Matches now</p><p class="tnum mt-1 text-3xl font-bold text-emerald-700">{{ diff.new_match_count }}</p></div>
+            </div>
+            {% if diff.newly_matched_jobs %}<p class="mt-4 text-sm text-emerald-900"><strong>Newly unlocked:</strong> {{ diff.newly_matched_jobs|join(', ') }}</p>{% endif %}
+        </div>
+    </section>
+    {% endif %}
+
+    <section>
+        <div class="mb-4"><p class="text-xs font-mono uppercase tracking-[0.16em] text-primary-600">Opportunity map</p><h2 class="font-display text-2xl font-bold" style="color: var(--text);">Riyadh job matches</h2></div>
+        <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {% for match in matches %}
+            <article class="card p-5 {% if match.matched %}ring-1 ring-emerald-400/60{% endif %}">
+                <div class="flex items-start justify-between gap-4"><div><h3 class="font-display font-semibold" style="color: var(--text);">{{ match.title }}</h3><p class="mt-1 text-xs" style="color: var(--text-subtle);">{{ match.company }} · {{ match.location }}</p></div><span class="tnum shrink-0 rounded-full px-2.5 py-1 text-xs font-bold {% if match.matched %}bg-emerald-100 text-emerald-700{% else %}bg-gray-100 text-gray-600{% endif %}">{{ (match.coverage * 100)|round|int }}%</span></div>
+                <div class="mt-4 h-1.5 overflow-hidden rounded-full bg-gray-200"><div class="h-full rounded-full {% if match.matched %}bg-emerald-500{% else %}bg-primary-500{% endif %}" style="width: {{ (match.coverage * 100)|round|int }}%"></div></div>
+                <div class="mt-4 flex flex-wrap gap-1.5">{% for skill in match.required_skills %}<span class="rounded-md px-2 py-1 text-[10px] {% if skill in match.matched_skills %}bg-emerald-100 text-emerald-700{% elif skill in match.unverified_skills %}bg-amber-100 text-amber-700{% else %}bg-rose-100 text-rose-700{% endif %}">{{ skill }}</span>{% endfor %}</div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    <details class="card overflow-hidden">
+        <summary class="cursor-pointer px-5 py-4 font-semibold" style="color: var(--text);">Analyze another CV</summary>
+        <form class="border-t p-5" method="post" action="/proof/profile" hx-post="/proof/profile" hx-target="#proof-content" hx-swap="outerHTML" hx-indicator="#proof-loading">
+            <textarea name="cv_text" required minlength="50" maxlength="10000" rows="6" class="w-full rounded-xl border px-4 py-3 text-sm" placeholder="Paste a different CV…">{{ cv_text }}</textarea>
+            <button type="submit" class="mt-3 rounded-xl bg-primary-600 px-5 py-2.5 font-semibold text-white hover:bg-primary-700">Recalculate profile</button>
+        </form>
+    </details>
+    {% endif %}
+
+    <footer class="pb-4 text-center text-xs" style="color: var(--text-subtle);">Scores, gap selection, challenge results, and job matches are produced by deterministic implemented logic. AWS-backed capabilities are shown only when verified.</footer>
+</main>

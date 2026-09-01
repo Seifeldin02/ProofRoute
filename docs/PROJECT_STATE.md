@@ -96,3 +96,20 @@ Normal form and JSON bodies are both supported. Profile input is `cv_text`. The 
 - `snapshot_message` is client-carried MVP state when persistence is unavailable; production should add integrity/conflict controls.
 - The AST-constrained evaluator is demo containment, not a production multi-tenant sandbox.
 - Next integration step: add `proof.html`, the real job dataset, the agent prefix branch, and teammate-owned formal tests without changing the deterministic backend contracts above.
+
+## Dedicated frontend and deterministic demo verification
+
+- A dedicated ProofRoute dashboard now exists at `chatapp/app/templates/proof.html`, with HTMX content in `chatapp/app/templates/components/proof_content.html`. Normal `GET /proof` renders the complete ProofRoute page; HTMX profile/evaluation requests return only `#proof-content`.
+- The checked-in curated dataset `chatapp/app/data/riyadh_jobs.json` contains 12 Riyadh roles and is active (`USING_DEVELOPMENT_FALLBACK=false`). It is local curated data and is not represented as live AWS or SkillForge retrieval.
+- Reproducible demo inputs are under `docs/demo/`. Against the actual deterministic implementation, the demo CV produces readiness 55, 4 strong matches, and Automated Testing as the highest-impact gap. The failing fixture does not promote; the passing fixture promotes Automated Testing and recalculates readiness to 73 and strong matches to 7.
+- Focused domain and FastAPI/HTMX tests are in `chatapp/tests/test_proof_route.py`; the targeted run passed 2 tests.
+- Exact startup, credential-profile guidance, demo steps, and fallback disclosures are in `docs/DEMO_RUNBOOK.md`.
+
+## Current AWS verification and deployment status
+
+- Verified profile/region: `skillforge`, `us-west-2`; STS resolves account `395448252349` through the workshop `WSParticipantRole`.
+- Verified official resources: SkillForge Knowledge Base `ACTIVE`, its data source `AVAILABLE`, both SkillForge DynamoDB tables `ACTIVE`, the resumes bucket accessible, shared Guardrail `READY`, and the shared Lambda role accessible.
+- Existing shared stacks `alltracksstack` and `sharedfoundationstack` remain `CREATE_COMPLETE` and were not modified or recreated.
+- Project-specific AgentCore Runtime `proofroute_agent-2czYXoGfYy` and its `DEFAULT` endpoint are `READY`. A direct runtime smoke invocation returned exactly `PROOFROUTE_RUNTIME_OK` using `qwen.qwen3-32b` in `us-west-2`.
+- The project-specific runtime role required `bedrock-mantle:CreateInference` and `bedrock-mantle:CallWithBearerToken`; only that deployment role was updated. No shared workshop role or stack was changed.
+- Public web deployment is blocked: the existing full CDK path provisions a separate Foundation, Knowledge Base, Memory, Cognito, tables, and related resources instead of safely reusing the workshop foundation. It was intentionally not run, so no public URL is available and the verified local `/proof` demo remains unchanged.

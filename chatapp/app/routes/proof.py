@@ -179,10 +179,17 @@ def _json_safe_context(context: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def _render(request: Request, context: dict[str, Any], status_code: int = 200) -> Response:
-    """Render the teammate template when present, otherwise return testable JSON."""
+    """Render the dedicated dashboard, returning only its content for HTMX requests."""
     template_path = Path(TEMPLATES_DIR) / "proof.html"
-    if template_path.is_file():
-        return templates.TemplateResponse("proof.html", context, status_code=status_code)
+    partial_path = Path(TEMPLATES_DIR) / "components" / "proof_content.html"
+    if template_path.is_file() and partial_path.is_file():
+        template_name = "components/proof_content.html" if context.get("partial") else "proof.html"
+        return templates.TemplateResponse(
+            request=request,
+            name=template_name,
+            context=context,
+            status_code=status_code,
+        )
     response = JSONResponse(_json_safe_context(context), status_code=status_code)
     response.headers["X-ProofRoute-Representation"] = "json-fallback"
     return response

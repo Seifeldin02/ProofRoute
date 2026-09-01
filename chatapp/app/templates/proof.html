@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}ProofRoute — Evidence-Driven Career Readiness{% endblock %}
+
+{% block head %}
+<style>
+    .htmx-indicator { opacity: 0; pointer-events: none; transition: opacity .15s ease; }
+    .htmx-request .htmx-indicator, .htmx-request.htmx-indicator { opacity: 1; }
+    .proof-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); }
+    .proof-code { direction: ltr; text-align: left; tab-size: 4; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="min-h-screen">
+    {% set app_title = "ProofRoute" %}
+    {% set app_subtitle = "Prove the next skill that changes your opportunities" %}
+    {% set primary_action = {"type": "back_to_chat"} %}
+    {% set header_full_width = false %}
+    {% set show_admin_btn = is_admin %}
+    {% include "components/header.html" %}
+    {% include "components/proof_content.html" %}
+</div>
+{% endblock %}

@@ -1,0 +1,88 @@
+{
+  "jobs": [
+    {
+      "id": "riyadh-001",
+      "title": "Junior Python Backend Engineer",
+      "company": "Riyadh Digital Labs",
+      "location": "Riyadh",
+      "required_skills": ["Python", "REST APIs", "SQL", "Git", "Automated Testing"]
+    },
+    {
+      "id": "riyadh-002",
+      "title": "Backend Software Engineer",
+      "company": "Najd Cloud Systems",
+      "location": "Riyadh",
+      "required_skills": ["Python", "FastAPI", "SQL", "Docker", "Automated Testing"]
+    },
+    {
+      "id": "riyadh-003",
+      "title": "Graduate Software Engineer",
+      "company": "Saudi Product Studio",
+      "location": "Riyadh",
+      "required_skills": ["Python", "Data Structures", "Git", "Linux"]
+    },
+    {
+      "id": "riyadh-004",
+      "title": "Junior Cloud Backend Developer",
+      "company": "Desert Scale",
+      "location": "Riyadh",
+      "required_skills": ["Python", "AWS", "REST APIs", "Docker", "CI/CD"]
+    },
+    {
+      "id": "riyadh-005",
+      "title": "Associate API Engineer",
+      "company": "Kingdom Fintech",
+      "location": "Riyadh",
+      "required_skills": ["REST APIs", "SQL", "Git", "Automated Testing"]
+    },
+    {
+      "id": "riyadh-006",
+      "title": "Junior Platform Engineer",
+      "company": "Riyadh Infrastructure Co.",
+      "location": "Riyadh",
+      "required_skills": ["Linux", "Docker", "AWS", "CI/CD", "Git"]
+    },
+    {
+      "id": "riyadh-007",
+      "title": "Backend Graduate Trainee",
+      "company": "Tuwaiq Software",
+      "location": "Riyadh",
+      "required_skills": ["Python", "SQL", "Automated Testing", "Git"]
+    },
+    {
+      "id": "riyadh-008",
+      "title": "Junior Integration Developer",
+      "company": "Saudi Connect",
+      "location": "Riyadh",
+      "required_skills": ["Python", "REST APIs", "Automated Testing", "Docker"]
+    },
+    {
+      "id": "riyadh-009",
+      "title": "FastAPI Backend Associate",
+      "company": "Vision Apps",
+      "location": "Riyadh",
+      "required_skills": ["Python", "FastAPI", "REST APIs", "SQL", "Automated Testing"]
+    },
+    {
+      "id": "riyadh-010",
+      "title": "Junior Data Services Engineer",
+      "company": "Riyadh Analytics",
+      "location": "Riyadh",
+      "required_skills": ["Python", "SQL", "Git", "Docker"]
+    },
+    {
+      "id": "riyadh-011",
+      "title": "API Quality Engineer",
+      "company": "Saudi Commerce Tech",
+      "location": "Riyadh",
+      "required_skills": ["REST APIs", "Git", "Automated Testing", "AWS"]
+    },
+    {
+      "id": "riyadh-012",
+      "title": "Junior Backend Developer",
+      "company": "Capital Code",
+      "location": "Riyadh",
+      "required_skills": ["Python", "REST APIs", "SQL", "Automated Testing", "CI/CD"]
+    }
+  ]
+}
