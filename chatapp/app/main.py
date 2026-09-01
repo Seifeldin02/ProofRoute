@@ -23,6 +23,7 @@ from app.routes.feedback import router as feedback_router, admin_router as feedb
 from app.routes.prompt_templates import router as templates_router, admin_router as templates_admin_router
 from app.routes.app_settings import api_router as settings_api_router, admin_router as settings_admin_router
 from app.routes.knowledge_base import api_router as kb_api_router, admin_router as kb_admin_router
+from app.routes.proof import router as proof_router
 
 # Set up paths
 BASE_DIR = Path(__file__).resolve().parent
@@ -114,6 +115,7 @@ app.include_router(settings_api_router)
 app.include_router(settings_admin_router)
 app.include_router(kb_api_router)
 app.include_router(kb_admin_router)
+app.include_router(proof_router)
 
 # Add hot reload route if enabled
 if hot_reload:
