@@ -1,19 +1,21 @@
 # ProofRoute MVP Design
 
+> **Official SkillForge correction:** The sections titled **AWS SkillForge Correction** later in this document supersede any earlier local-only or second-entrypoint implication. Existing deterministic extraction, formulas, constrained evaluator, local fallback, and pass-gated transition remain valid. The correction adds verified SSM configuration, one-agent autonomous orchestration, official AgentCore Code Interpreter scoring/planning, SkillForge KB access through Gateway, per-user Memory scoping, and a mandatory read-only verification gate. No shared foundation resource is created or replaced.
+
 ## Overview
 
-ProofRoute will be a dedicated authenticated `/proof` workflow that proves one closed loop in approximately 2.5 implementation hours:
+ProofRoute remains a dedicated authenticated `/proof` workflow and retains the implemented deterministic backend loop:
 
 1. paste CV text;
-2. deterministically extract a small canonical skill profile from a local dictionary;
-3. compute readiness, job matches, and the highest-impact gap from one local Riyadh/Saudi job dataset;
-4. present one fixed **Automated Testing** challenge;
-5. evaluate a tightly constrained Python test function against deterministic hidden mutants in a subprocess;
-6. transition `Automated Testing` to `Demonstrated` only on a pass;
+2. deterministically extract a canonical skill profile;
+3. obtain market evidence from the verified SkillForge Knowledge Base through AgentCore Gateway, with the validated local Riyadh dataset as an explicitly labeled fallback;
+4. use the official Strands AgentCore Code Interpreter integration to execute versioned deterministic scoring, gap selection, and action-planning code;
+5. present the fixed **Automated Testing** challenge;
+6. evaluate the candidate test function with the existing constrained deterministic evaluator, which remains the sole pass/fail and promotion authority;
 7. recompute and display before/after score and job matches; and
-8. persist the compact snapshot as an AgentCore Memory event through a mode/action branch in the existing agent entrypoint.
+8. persist scoped progression through the existing AgentCore Memory resource.
 
-The FastAPI application, not an LLM, owns extraction, scoring, matching, challenge definition, pass/fail, and state transition. Bedrock may remain available for the existing chat experience, but it is not on ProofRoute's numeric or evaluation path. No AWS infrastructure, new database, generic code-execution platform, generated challenge, file upload, analytics, or repository/service abstraction is added.
+One Strands agent on the existing AgentCore Runtime autonomously coordinates Gateway, Code Interpreter, deterministic evaluation, and Memory. LLM output does not perform arithmetic, invent market evidence, judge challenge code, or authorize a skill transition. Existing Cognito, Guardrails, observability, Runtime, Memory, Knowledge Base, Gateway, Code Interpreter, DynamoDB, and S3 resources are reused only after verification; the correction creates no duplicate shared infrastructure.
 
 ### Scope and requirement feasibility corrections
 
@@ -447,3 +449,366 @@ If implementation runs late, cut in this order: exact target numbers → visual 
 9. **140–150 min — demo rehearsal:** run CV → profile → challenge fail → challenge pass → diff → reload; apply the cut list rather than adding abstractions.
 
 This ordering establishes deterministic business value before UI or AWS integration and preserves a runnable in-request loop even if Memory integration is the only deferred piece.
+
+
+---
+
+# AWS SkillForge Correction
+
+## Overview
+
+This correction is an integration amendment, not a restart. `chatapp/app/proof_route.py`, `chatapp/app/routes/proof.py`, and router registration described in `docs/PROJECT_STATE.md` remain completed backend context. The deterministic formulas, canonicalization, fixed challenge, AST policy, hidden mutants, fail-closed promotion, snapshot codec, and temporary local market fallback remain valid.
+
+The corrected target is one autonomous Strands agent using verified shared SkillForge resources:
+
+- **AgentCore Gateway** exposes the official SkillForge managed Knowledge Base as the primary market tool.
+- **AgentCore Code Interpreter** executes versioned deterministic Python for readiness, market aggregation, gap ordering, job matching, and next-action planning. It is a managed calculation tool, not an LLM arithmetic prompt and not the challenge judge.
+- **The existing deterministic evaluator** remains the only authority for challenge pass/fail and skill promotion.
+- **AgentCore Memory** stores progression under an authenticated per-user scope.
+- **SSM Parameter Store** is the configuration authority for seven SkillForge resource roles.
+- **The existing local dataset** remains a transparent fallback and must never be described as AWS-retrieved data.
+
+The correction adds no duplicate Runtime, Memory, Code Interpreter, Gateway, Knowledge Base, DynamoDB table, S3 bucket, Cognito resource, Guardrail, or observability stack.
+
+## Research Findings
+
+The local repository contains no occurrences of `SkillForge`, `/app/workshop`, `citypulse`, or an AgentCore Code Interpreter configuration, so exact parameter paths and values cannot be truthfully inferred from source. They must be discovered and verified from the authorized SkillForge environment. Existing scripts already support named AWS profiles, while repository deployment defaults vary by script; the verification gate therefore pins every SkillForge check to `us-west-2` explicitly.
+
+Official AWS documentation confirms the integration primitives used by this correction:
+
+- [AgentCore Code Interpreter getting started](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/code-interpreter-getting-started.html) describes managed Python execution for calculations and validation.
+- [Using AgentCore Code Interpreter via AWS Strands](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/code-interpreter-using-strands.html) documents the supported Strands integration path.
+- [Connect a managed Knowledge Base through AgentCore Gateway](https://docs.aws.amazon.com/bedrock/latest/userguide/kb-gateway-target.html) documents exposing a Bedrock Knowledge Base as an MCP tool.
+- [AgentCore Gateway managed Knowledge Base connector](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-target-connector-managed-kb.html) documents the native connector used instead of a custom retrieval service.
+
+Content from official AWS sources is summarized and rephrased for compliance with licensing restrictions.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    U[Authenticated Candidate] --> UI[FastAPI + htmx /proof]
+    UI --> A[One existing Strands Agent\non existing AgentCore Runtime]
+    A --> G[Verified AgentCore Gateway tool]
+    G --> KB[Official SkillForge KB]
+    G -. unavailable .-> F[Validated local Riyadh fallback]
+    A --> CI[Verified AgentCore Code Interpreter\nversioned deterministic score/plan]
+    A --> EV[Existing deterministic evaluator\nsole challenge authority]
+    EV -->|passed only| TR[Skill promotion]
+    A --> M[Existing AgentCore Memory\nuser + namespace + session scope]
+    SSM[/SSM /app/workshop\n7 verified parameters/] --> CFG[Configuration resolver]
+    CFG --> A
+    O[Existing CloudWatch + OpenTelemetry] -. sanitized traces .-> A
+    VG[Mandatory read-only verification gate] --> SSM
+    VG --> KB
+    VG --> CI
+    VG --> G
+    VG --> M
+    VG --> DDB[Two existing DynamoDB tables]
+    VG --> S3[Existing S3 bucket]
+```
+
+### Corrected authority boundaries
+
+1. **Agent orchestration authority:** one existing Strands agent decides which verified tool to call next and validates every structured tool result. A second agent or runtime is forbidden.
+2. **Market authority:** verified SkillForge KB evidence through Gateway is primary. The local JSON dataset is a labeled availability fallback, not a simulated KB.
+3. **Calculation authority:** Code Interpreter executes a versioned deterministic Python calculation bundle. LLM prose may explain results but cannot calculate or override them. The existing pure functions remain the local fallback and reference oracle.
+4. **Evaluation authority:** the constrained deterministic evaluator alone decides whether candidate challenge evidence passes. Code Interpreter must never grade candidate code or authorize state promotion.
+5. **Persistence authority:** AgentCore Memory stores versioned records scoped by authenticated user ID, `proof-route` namespace, and ProofRoute session. No default/shared actor is allowed.
+6. **Configuration authority:** the seven exact SSM paths found in the official SkillForge environment are authoritative. The logical role list is fixed, but parameter paths and values are not guessed.
+7. **Verification authority:** sanitized output from read-only AWS APIs is required before claiming a resource is available. Failed credential checks are credential blockers, not evidence that resources are missing.
+
+## Mandatory Verification Gate
+
+The gate runs after the current integration batch and before any new feature or infrastructure work. It is deliberately non-mutating.
+
+### Gate sequence
+
+1. Detect available named profiles using AWS CLI configuration metadata. Do not inspect credential files or print token/key material.
+2. Select the profile authorized for SkillForge. User-provided `citypulse` commands are examples only and must not override verified SkillForge configuration.
+3. Export or pass `AWS_PROFILE=<selected>` and `AWS_REGION=us-west-2`/`--region us-west-2` to every check.
+4. Run STS `GetCallerIdentity`. Record only profile, region, account ID, principal ARN, timestamp, and status.
+5. List SSM parameter metadata recursively under `/app/workshop` without decryption or values.
+6. Reconcile exactly seven official SkillForge paths to these logical roles: Code Interpreter, Gateway, Knowledge Base, Memory, DynamoDB table A, DynamoDB table B, and S3 bucket. Record the exact names in `docs/PROJECT_STATE.md` only after discovery.
+7. Resolve each parameter for programmatic validation while suppressing values from terminal transcripts, logs, task output, and documentation. Validate resource type and identifier shape in memory.
+8. Use official read-only APIs to verify Code Interpreter, Gateway, Memory, and Knowledge Base. Require the SkillForge KB status to be `ACTIVE`.
+9. Use non-mutating DynamoDB operations such as `DescribeTable` and bounded read authorization checks for both tables.
+10. Use non-mutating S3 metadata/list authorization checks for the bucket; do not upload, overwrite, or delete objects.
+11. Inspect existing stack/resource metadata for overlap. Document overlap and ownership; do not deploy, import, recreate, replace, or delete anything.
+12. Write a sanitized PASS/BLOCKED report to `docs/PROJECT_STATE.md`. Dependent implementation begins only after PASS.
+
+### Credential-first failure handling
+
+Authentication, SSO, credential-process, expired-token, signature, and authorization errors stop the gate. The report includes the exact failing command with placeholders, sanitized error category, selected profile, region, and manual refresh commands appropriate to the detected profile, for example:
+
+```powershell
+aws configure list-profiles
+aws sso login --profile <skillforge-profile>
+aws sts get-caller-identity --profile <skillforge-profile> --region us-west-2
+```
+
+For non-SSO credentials, the report instructs the operator to refresh through the organization's approved credential provider; it never requests or records keys. No task may convert a credential failure into a resource deployment proposal or a PASS claim.
+
+### Gate evidence schema
+
+```text
+VerificationEvidence
+- checked_at: UTC timestamp
+- profile_name: non-secret string
+- region: "us-west-2"
+- account_id: string                    # only after STS succeeds
+- principal_arn: string                 # only after STS succeeds
+- parameters: 7 × {name, logical_role, metadata, status}
+- resources: {logical_role, type, status, sanitized_diagnostics}[]
+- skillforge_kb_status: "ACTIVE" | blocked | unexpected
+- overlap: {type, identifier_fingerprint, owner_evidence, action="reuse-only"}[]
+- gate_status: PASS | BLOCKED
+- blockers: {command_template, category, remediation}[]
+```
+
+Resource values are not persisted in this report. A one-way short fingerprint may be stored when needed to distinguish overlap without exposing a full sensitive identifier.
+
+## Components and Interfaces
+
+### SkillForge configuration resolver
+
+A small typed resolver in the agent configuration boundary reads the seven exact parameter paths from a checked-in **name-only manifest** created after discovery. The manifest contains SSM path and logical role, never resolved values. Runtime resolution uses `us-west-2`, validates one-to-one roles, and returns an immutable configuration object. Missing, duplicate, malformed, or wrong-type entries fail closed.
+
+```python
+@dataclass(frozen=True)
+class SkillForgeConfig:
+    code_interpreter_id: str
+    gateway_id_or_url: str
+    knowledge_base_id: str
+    memory_id: str
+    profile_table_name: str
+    progression_table_name: str
+    market_bucket_name: str
+    region: str = "us-west-2"
+```
+
+Field names are logical application names, not claims about actual SSM suffixes. Exact paths are discovered by the gate.
+
+### One-agent orchestration interface
+
+The existing entrypoint constructs one Strands agent with tools for:
+
+- market retrieval through the verified Gateway MCP tool;
+- exact calculation/planning through AgentCore Code Interpreter;
+- the existing deterministic challenge evaluator;
+- scoped Memory read/write; and
+- existing deterministic parsing/profile operations.
+
+The ProofRoute system prompt defines authority boundaries and requires structured outputs. Orchestration validates each result before the next call. Existing stream event types and Guardrail hooks remain unchanged. The existing prefix-based snapshot action may remain as a compatibility path, but it is not a second agent and cannot bypass user scoping or structured validation.
+
+### Code Interpreter calculation contract
+
+The agent sends bounded normalized data, never raw credentials or environment dumps:
+
+```text
+CalculationRequest
+- schema_version
+- calculation_version
+- input_digest
+- canonical_skill_records
+- validated_market_records
+- prior_score
+- prior_match_count
+- market_source: skillforge-kb | local-fallback
+```
+
+The versioned Python bundle implements existing frequency, readiness, priority, tie-break, matching, monotonicity, and ordered-next-action rules. It returns:
+
+```text
+CalculationResult
+- schema_version
+- calculation_version
+- input_digest
+- readiness_score
+- selected_gap
+- priority_scores
+- job_matches
+- ordered_plan
+- market_source
+- diagnostics
+```
+
+The agent rejects digest mismatch, malformed schema, out-of-range values, non-deterministic ordering, or monotonicity violations. If managed execution is unavailable, the existing pure functions calculate the same contract and return `market_source` plus `calculation_source=local-fallback`. No AWS execution claim is shown without runtime evidence.
+
+### Gateway market contract
+
+The Gateway tool queries only the verified SkillForge managed KB target. Retrieved records must include enough source metadata to trace evidence and enough structured skill/job fields for deterministic transformation. Unstructured text is normalized into bounded records before calculation. If Gateway or KB is unavailable, the current validated local loader supplies records and the response carries `market_source=local-fallback` and a sanitized reason.
+
+### Scoped Memory contract
+
+```text
+MemoryScope
+- actor_id: authenticated Cognito user ID
+- namespace: "proof-route"
+- session_id: stable ProofRoute session identifier
+
+ProgressRecord
+- schema_version
+- actor_scope_digest
+- input_digest or idempotency_key
+- profile
+- market_source
+- calculation_source
+- latest_plan
+- challenge_outcome
+- updated_at
+```
+
+Every read verifies scope before deserialization. Missing identity fails closed. CV text, candidate code, evidence snippets, raw records, credentials, and resolved SSM values are excluded from telemetry.
+
+### Arabic RTL presentation
+
+The existing Jinja/htmx page gains a lightweight locale switch or request preference. Arabic mode translates primary headings, actions, status labels, validation errors, and result summaries; it applies `dir="rtl"` to prose containers while retaining `dir="ltr"` for code, hashes, identifiers, and numerical formula blocks. Existing English behavior, route shape, htmx fragments, and CSS utilities remain intact. No new frontend framework or translation service is introduced.
+
+### Existing observability
+
+Existing CloudWatch and OpenTelemetry paths record sanitized spans for orchestration and each tool role: operation, correlation/session hash, duration, status, fallback/source label, and non-secret resource role. Spans must not contain CV text, submitted code, raw memory payloads, credentials, SSM values, or raw tool responses.
+
+## Data Models
+
+The existing domain models remain unchanged. The following integration models are additive:
+
+```text
+SkillForgeParameter
+- path: str                            # name only
+- logical_role: enum[code_interpreter, gateway, knowledge_base, memory,
+                     profile_table, progression_table, market_bucket]
+- metadata: {version?, last_modified?}
+- verification_status: verified | blocked | invalid
+
+MarketEvidence
+- source: skillforge-kb | local-fallback
+- source_reference: str | null
+- canonical_skills: tuple[str]
+- title: str
+- location: str
+
+PlanStep
+- order: int
+- skill_name: str
+- action: str
+- rationale_inputs: tuple[str]
+- expected_score_effect: int
+
+CalculationEnvelope
+- schema_version: int
+- calculation_version: str
+- input_digest: str
+- market_source: str
+- result: CalculationResult
+
+ToolExecutionEvidence
+- tool_role: str
+- started_at: UTC timestamp
+- duration_ms: int
+- status: success | fallback | blocked | error
+- non_secret_diagnostics: str
+```
+
+
+## Correctness Properties Addendum
+
+The acceptance-criteria prework classified AWS resource existence, UI rendering, and wiring as integration/example/smoke checks. Property testing applies only to pure manifest mapping, calculation, structured orchestration, scoping, redaction, fallback labeling, and release eligibility. Reflection consolidated overlapping criteria: complete and invalid configuration mapping form one resolver property; formula parity, repeatability, and envelope validation form one calculation property; downstream stopping and state preservation form one orchestration property; Gateway citation preservation and fallback truthfulness form one source-integrity property; Memory keying and cross-scope rejection form one isolation property; input/log/trace secrecy form one redaction property; and evidence-backed claims plus push eligibility form one verification property. Existing Properties 1–8 remain unchanged and continue to cover fallback calculations and evaluator authority.
+
+*A property is a characteristic or behavior that should hold true across all valid executions of a system-essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+
+### Property 9: SkillForge configuration resolves exactly one verified value per role or fails closed
+
+For all candidate name-only parameter manifests and resolved parameter metadata, the configuration resolver returns a complete immutable configuration exactly when all seven distinct logical roles occur once with non-empty type-valid values; otherwise the resolver returns no partial configuration and identifies only parameter names and sanitized validation reasons.
+
+**Validates: Requirements 14.5, 14.6, 14.11, 15.1, 15.2, 15.3**
+
+### Property 10: Managed-compatible calculation is deterministic and reference-equivalent
+
+For all valid canonical profiles, validated market records, prior results, and calculation versions, the versioned Code Interpreter calculation bundle returns the same readiness, priority ordering, selected gap, matches, and ordered plan as the existing deterministic reference formulas; repeated execution with the same input digest returns an equivalent structured result, and any mutated digest, schema, range, ordering, or monotonicity invariant is rejected.
+
+**Validates: Requirements 4.1, 4.2, 4.4, 5.1, 5.2, 5.3, 9.3, 17.2, 17.3, 17.4, 17.5**
+
+### Property 11: Orchestration failure cannot advance dependent tools or verified state
+
+For all valid ProofRoute workflow states, tool sequences, and injected tool-result outcomes, the one-agent orchestrator advances to a dependent tool only after validating the preceding structured result; a failure or invalid result at any position prevents all dependent calls and preserves the last verified Skill_Profile and challenge-authority state.
+
+**Validates: Requirements 16.2, 16.3, 16.4, 17.6, 17.7**
+
+### Property 12: Market source labels and citations remain truthful
+
+For all valid Gateway evidence records and Local_Market_Fallback records, Gateway-derived normalized records preserve available source references and carry `skillforge-kb`, while fallback-derived records carry `local-fallback` plus a sanitized reason and never carry a successful AWS, Gateway, or SkillForge retrieval claim.
+
+**Validates: Requirements 18.2, 18.3, 18.4, 18.5, 18.6, 21.5**
+
+### Property 13: ProofRoute Memory scope isolates candidates
+
+For all authenticated Candidate identifiers, namespaces, sessions, and progress records, Memory keys and records contain the matching three-part scope; a record with a different actor or namespace is rejected, and records round-trip only within the original scope with required schema, timestamp, and idempotency metadata preserved.
+
+**Validates: Requirements 19.1, 19.2, 19.3, 19.4**
+
+### Property 14: Sensitive values are absent from tool payloads and observability output
+
+For all generated credentials, tokens, SSM values, CV text, submitted code, evidence snippets, and raw Memory/tool payloads, the Code Interpreter request builder, verification reporter, logger, tracer, metric attributes, and Candidate-visible errors contain only allowed bounded fields and do not contain any generated sensitive value.
+
+**Validates: Requirements 14.2, 14.6, 15.4, 15.5, 19.5, 20.2, 20.6, 20.7**
+
+### Property 15: Verification evidence gates AWS claims and push eligibility
+
+For all combinations of credential, parameter, resource, secret-scan, test, build, integration, and smoke statuses, an AWS capability may be labeled verified and a push may be eligible only when all corresponding required evidence is successful; any blocked, failed, missing, or unexpected status produces a blocked decision with sanitized remediation and no deployment, recreation, or push action.
+
+**Validates: Requirements 14.1, 14.9, 14.10, 14.12, 21.1, 21.3, 21.4, 21.5, 21.7, 21.8**
+
+## Error Handling Addendum
+
+| Failure | Required behavior | Forbidden behavior |
+|---|---|---|
+| No named profile | Mark gate BLOCKED and provide profile discovery/configuration guidance. | Guess a profile, use embedded keys, or claim resources are absent. |
+| SSO/session expired | Record sanitized credential category and `aws sso login --profile <profile>`. | Print cached token content or continue resource diagnosis. |
+| STS identity denied | Stop the gate and preserve the exact sanitized command template. | Run deploy/bootstrap commands. |
+| `/app/workshop` inventory is not exactly seven authoritative mappings | Block and request reconciliation with official SkillForge handoff. | Invent suffixes or map `citypulse` examples as production values. |
+| Parameter resolve denied | Record parameter name and denial category only. | Print partial values or use hard-coded substitutes. |
+| SkillForge KB not `ACTIVE` | Block primary Gateway market path; allow only labeled local fallback. | Report live market retrieval or create another KB. |
+| Gateway/Code Interpreter/Memory cannot be verified | Block that managed capability and use only its documented fallback where one exists. | Create a replacement resource or claim managed execution. |
+| DynamoDB/S3 read check denied | Mark associated resource blocked and preserve other evidence independently. | Write test objects/items, broaden policies, or delete overlap. |
+| Code Interpreter returns invalid result | Reject result, preserve verified state, and use labeled deterministic fallback if allowed. | Repair values with LLM prose or promote a skill. |
+| Deterministic evaluator fails/returns non-pass | Preserve Skill_State and score authority boundary. | Ask Code Interpreter or LLM to overrule pass/fail. |
+| Memory scope mismatch | Reject record and emit sanitized security telemetry. | Return data or retry under a shared actor. |
+| Secret scan finds material | Block commit/push, remove material, rotate through approved process if real. | Commit, redact only documentation, or print the value. |
+| Any required validation fails | Update project state with exact sanitized blocker and manual next step. | Push or describe the correction as complete. |
+
+## Testing Strategy Addendum
+
+### Property tests
+
+Continue using installed **Hypothesis** with at least 100 examples for each new Property 9–15. Each property has one property-based test and the required comment tag:
+
+```python
+# Feature: proof-route, Property 10: Managed-compatible calculation is deterministic and reference-equivalent
+```
+
+Managed AWS calls are not repeated 100 times. Property 10 tests the exact versioned calculation bundle locally against the existing reference oracle; one or two authorized integration examples verify the same bundle through the real Code Interpreter. Gateway, Memory, SSM, STS, DynamoDB, S3, and resource-control APIs use bounded integration/smoke tests.
+
+### Example and integration tests
+
+- Configuration: valid seven-role manifest, each missing/duplicate/wrong-type case, explicit local mode, and conflicting `citypulse` illustrative input.
+- Orchestration: no profile, verified profile, Gateway fallback, Code Interpreter fallback, evaluator fail, evaluator pass, Memory failure, and malformed tool output.
+- Managed integration after gate PASS: one Strands Code Interpreter calculation, one Gateway query against the verified SkillForge KB, one scoped Memory write/read for a test actor, and read-only checks for both tables and the bucket.
+- Authority: assert Code Interpreter has no transition authorization path and only deterministic evaluator `passed` evidence can promote.
+- UI: Arabic labels and `rtl` prose, `ltr` code/numbers, unchanged English page, htmx fragments, and 1280px no-horizontal-scroll smoke.
+- Observability: sanitized operation spans for Runtime/Gateway/Code Interpreter/Memory/evaluator, fallback labels, and no prohibited payload content.
+- Infrastructure: synth/diff proves no duplicate shared resources; overlap report contains `reuse-only` and no delete/import/replace action.
+
+### Required final validation order
+
+1. Verification_Gate PASS recorded in `docs/PROJECT_STATE.md`.
+2. Credential/secret scan of tracked changes and generated verification artifacts.
+3. Targeted ProofRoute unit and property tests.
+4. Full existing Python suite.
+5. CDK TypeScript build and Jest suite.
+6. FastAPI route and deterministic evaluator smoke.
+7. Authorized, non-destructive SkillForge Gateway/Code Interpreter/Memory smoke when credentials remain valid.
+8. Git diff/status review confirming only intended files and no resource identifiers or secret values.
+9. Push eligibility check from Property 15; push occurs only after all required statuses pass and under the repository's normal explicit push authorization.
+
+If credentials are genuinely unavailable or expired, AWS-dependent tests are BLOCKED, not skipped-as-passed. `docs/PROJECT_STATE.md` records the exact sanitized blocker and manual refresh command; no AWS success claim or push is permitted.

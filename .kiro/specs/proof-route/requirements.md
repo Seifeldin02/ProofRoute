@@ -29,8 +29,30 @@ Demo target: Backend Readiness 64% → 73%, Automated Testing Unverified → Dem
 - **ProofRoute_Dashboard**: The dedicated htmx page within the existing chatapp that presents the candidate overview, skill state cards, readiness gauge, challenge widget, evaluation result, before/after diff, and job matches.
 - **Proof_Challenge**: A bounded coding exercise (Python, < 30 min) generated for a specific skill gap, with explicit pass/fail criteria that the Code_Evaluator can verify deterministically.
 - **Starter_Kit**: The `aws-samples/sample-strands-agentcore-starter` project providing FastAPI + htmx frontend, Strands Agents SDK, AgentCore Runtime, Memory, KB, Guardrails, and CDK stacks.
+- **ProofRoute_Agent**: The single Strands agent that autonomously orchestrates ProofRoute tools through the existing AgentCore Runtime without creating a second agent or runtime.
+- **AgentCore_Code_Interpreter**: The official managed Amazon Bedrock AgentCore Code Interpreter used by the ProofRoute_Agent to execute versioned deterministic scoring and planning code; the AgentCore_Code_Interpreter does not determine coding-challenge pass/fail.
+- **Deterministic_Evaluator**: The existing constrained local evaluator whose deterministic hidden tests remain the sole authority for Proof_Challenge pass/fail and Skill_State promotion.
+- **SkillForge_KB**: The official SkillForge Amazon Bedrock Knowledge Base identified by the authoritative SkillForge SSM configuration in `us-west-2`.
+- **Market_Gateway_Tool**: The AgentCore Gateway tool that exposes the SkillForge_KB to the ProofRoute_Agent using the official managed Knowledge Base connector.
+- **Local_Market_Fallback**: The existing validated local Riyadh job dataset used only when the SkillForge_KB or Market_Gateway_Tool is unavailable; responses using the fallback identify the data source and do not claim live AWS retrieval.
+- **SkillForge_Parameter_Manifest**: The seven exact SSM parameter paths under `/app/workshop` supplied by or discovered from the official SkillForge workshop environment and recorded by name and logical resource role without recording secret values. The required logical roles are AgentCore Code Interpreter, AgentCore Gateway, SkillForge_KB, AgentCore Memory, two DynamoDB tables, and one S3 bucket; actual parameter paths and resource identifiers must be discovered and verified rather than inferred.
+- **Verification_Gate**: The mandatory read-only AWS environment verification that must pass after the current integration work and before any new ProofRoute feature or infrastructure work begins.
+- **Shared_Foundation**: The pre-existing SkillForge and Starter_Kit AWS resources, including Runtime, Memory, Gateway, Code Interpreter, SkillForge_KB, DynamoDB tables, S3 bucket, Cognito, Guardrails, and observability resources, that ProofRoute must reuse rather than deploy or recreate.
+- **Scoped_Memory_Key**: The combination of authenticated user ID, ProofRoute namespace, and session identifier used to isolate each Candidate's Memory events.
+- **Configuration_Resolver**: The component that loads resource identifiers from the verified SkillForge_Parameter_Manifest in SSM, validates expected identifier shape, and supplies configuration without embedding credentials or secret values in source code, logs, templates, or client responses.
+- **AWS_STS**: AWS Security Token Service, used by the Verification_Gate through `GetCallerIdentity` to verify the selected profile's account and principal without exposing credentials.
+- **SSM_Parameter_Store**: AWS Systems Manager Parameter Store, whose `/app/workshop` SkillForge parameters are the authoritative source of shared resource configuration.
+- **DynamoDB_Table**: One of the two existing SkillForge Amazon DynamoDB tables referenced by the SkillForge_Parameter_Manifest and checked only with non-mutating verification operations.
+- **S3_Bucket**: The existing SkillForge Amazon S3 bucket referenced by the SkillForge_Parameter_Manifest and checked only with non-mutating verification operations.
+- **Existing_Observability**: The Starter_Kit CloudWatch and OpenTelemetry logging and tracing paths reused for sanitized ProofRoute operation telemetry.
 
 ---
+
+## Correction Precedence
+
+Requirements 14–21 are the urgent official AWS SkillForge correction. When an earlier criterion describes local-only market intelligence, direct arithmetic ownership, a separate ProofRoute agent entrypoint, or a generic subprocess as the complete AWS integration, Requirements 14–21 take precedence. Existing deterministic extraction, formulas, evaluator restrictions, fallback behavior, and pass-gated Skill_State transition remain valid unless explicitly refined below.
+
+The user's `citypulse` command examples are illustrative only. The SkillForge_Parameter_Manifest discovered from the authoritative `/app/workshop` SkillForge parameters in `us-west-2` determines actual resource identifiers and names.
 
 ## Requirements
 
@@ -235,3 +257,121 @@ Demo target: Backend Readiness 64% → 73%, Automated Testing Unverified → Dem
 6. WHILE the Code_Evaluator subprocess is running, THE Code_Evaluator SHALL restrict subprocess memory usage to a maximum of 512 MB, terminating the subprocess if the limit is exceeded and marking all test cases as failed with status `memory_limit_exceeded`.
 7. WHEN the Code_Evaluator creates the temporary working directory, THE Code_Evaluator SHALL set directory permissions such that only the subprocess user account can read, write, and execute within that directory.
 
+
+---
+
+### Requirement 14: Mandatory SkillForge Environment Verification Gate
+
+**User Story:** As a developer, I want the shared SkillForge environment verified before further work, so that ProofRoute integrates with real official resources without masking credential or configuration problems.
+
+#### Acceptance Criteria
+
+1. WHEN the current in-progress integration reaches its verification stage, THE Verification_Gate SHALL complete before any new ProofRoute feature implementation or infrastructure change begins.
+2. WHEN verification begins, THE Verification_Gate SHALL detect locally configured named AWS CLI profiles and select the SkillForge-authorized profile without reading or displaying access keys, secret keys, session tokens, or SSO cached tokens.
+3. WHEN the SkillForge-authorized profile is selected, THE Verification_Gate SHALL set the AWS region to `us-west-2` for every verification command and SDK client.
+4. WHEN profile and region selection completes, THE Verification_Gate SHALL call AWS STS `GetCallerIdentity` and record only the account ID, principal ARN, profile name, region, command status, and timestamp.
+5. WHEN STS identity verification succeeds, THE Verification_Gate SHALL list parameter metadata under `/app/workshop`, identify the seven exact SkillForge parameter paths, and map those paths to the seven logical roles in the SkillForge_Parameter_Manifest.
+6. WHEN the SkillForge_Parameter_Manifest is assembled, THE Verification_Gate SHALL resolve all seven parameters and record each parameter name, logical role, version or last-modified metadata when available, and validation status without recording any parameter value.
+7. WHEN resource identifiers are resolved, THE Verification_Gate SHALL verify that the SkillForge_KB status is `ACTIVE`, both referenced DynamoDB tables are describable and accessible through non-mutating operations, and the referenced S3 bucket is accessible through non-mutating metadata or listing operations.
+8. WHEN the SkillForge_Parameter_Manifest references AgentCore Code Interpreter, AgentCore Gateway, or AgentCore Memory resources, THE Verification_Gate SHALL verify each referenced resource through an official read-only API before recording the gate as passed.
+9. IF any AWS command returns an authentication, SSO, token-expiry, credential-process, signature, or authorization error, THEN THE Verification_Gate SHALL diagnose credentials and profile selection before diagnosing resource absence or proposing deployment.
+10. IF valid credentials cannot be obtained, THEN THE Verification_Gate SHALL stop AWS-dependent work, record the exact failing command and sanitized error category, provide profile-specific manual login or credential-refresh commands, and mark every unverified AWS claim as blocked rather than passed.
+11. IF fewer or more than seven authoritative SkillForge parameters are identified under `/app/workshop`, THEN THE Verification_Gate SHALL fail with a sanitized inventory mismatch and require reconciliation against the official SkillForge handoff before integration continues.
+12. WHEN verification completes, THE Verification_Gate SHALL update `docs/PROJECT_STATE.md` with the sanitized evidence, pass/block status, authoritative parameter names, verified resource types, and unresolved blockers before any dependent task starts.
+13. THE Verification_Gate SHALL treat any user-provided `citypulse` commands or resource names as illustrative examples and SHALL use the verified SkillForge parameters as the authoritative configuration source.
+
+### Requirement 15: SSM-Driven SkillForge Configuration
+
+**User Story:** As a developer, I want ProofRoute configuration resolved from the verified SkillForge SSM parameters, so that deployments use official shared resources without hard-coded identifiers.
+
+#### Acceptance Criteria
+
+1. THE Configuration_Resolver SHALL load all AWS resource identifiers required by ProofRoute from the seven verified entries in the SkillForge_Parameter_Manifest in `us-west-2`.
+2. WHEN the Configuration_Resolver returns configuration, THE Configuration_Resolver SHALL expose typed logical fields for AgentCore Code Interpreter, AgentCore Gateway, SkillForge_KB, AgentCore Memory, two DynamoDB tables, and one S3 bucket.
+3. IF an expected parameter is absent, duplicated, empty, malformed, or mapped to the wrong resource type, THEN THE Configuration_Resolver SHALL fail closed with the parameter name and sanitized reason without invoking the affected resource.
+4. THE Configuration_Resolver SHALL not embed SSM values, AWS credentials, tokens, or secret material in source code, committed environment files, browser content, error responses, telemetry attributes, or logs.
+5. WHEN configuration is logged for diagnostics, THE Configuration_Resolver SHALL log parameter names, resource types, region, and validation status while redacting resource values classified as secret or sensitive.
+6. WHERE a non-AWS local development mode is explicitly enabled, THE Configuration_Resolver SHALL use documented local placeholders and Local_Market_Fallback data while labeling AWS integrations as unavailable and unverified.
+
+### Requirement 16: Autonomous Single-Agent Orchestration
+
+**User Story:** As a Candidate, I want one agent to coordinate my evidence workflow autonomously, so that market research, exact planning, evaluation, and persistence form one coherent progression.
+
+#### Acceptance Criteria
+
+1. THE ProofRoute_Agent SHALL use one Strands agent on the existing AgentCore Runtime to orchestrate Market_Gateway_Tool retrieval, AgentCore_Code_Interpreter scoring and planning, Deterministic_Evaluator execution, and Memory_Store persistence.
+2. WHEN a Candidate submits a CV or requests the next action, THE ProofRoute_Agent SHALL determine the required tool sequence from current Skill_Profile state and tool results without requiring the Candidate to manually invoke individual tools.
+3. WHEN the ProofRoute_Agent invokes a tool, THE ProofRoute_Agent SHALL validate the structured tool result before using the result in a subsequent tool call or Candidate response.
+4. IF a required tool returns an error or malformed result, THEN THE ProofRoute_Agent SHALL stop dependent actions, preserve the last verified Skill_Profile, and identify the failed capability without fabricating a result.
+5. THE ProofRoute_Agent SHALL reuse the existing Runtime, Guardrails, authentication, stream event contract, and observability instrumentation.
+6. THE ProofRoute_Agent SHALL not create a duplicate agent, runtime, memory resource, gateway, knowledge base, table, bucket, identity provider, guardrail, or observability stack.
+
+### Requirement 17: Managed Code Interpreter Scoring and Planning
+
+**User Story:** As a Candidate, I want exact score and plan calculations executed through the official managed Code Interpreter, so that agent recommendations use reproducible computation rather than approximate language-model arithmetic.
+
+#### Acceptance Criteria
+
+1. WHEN a verified Skill_Profile and market result are available, THE ProofRoute_Agent SHALL invoke the real AgentCore_Code_Interpreter through the official Strands integration using the verified SkillForge resource configuration.
+2. WHEN AgentCore_Code_Interpreter computes readiness, priorities, match counts, or an ordered action plan, THE AgentCore_Code_Interpreter SHALL execute versioned deterministic Python logic implementing the formulas and tie-break rules defined in Requirements 4, 5, and 9.
+3. WHEN AgentCore_Code_Interpreter returns a result, THE ProofRoute_Agent SHALL accept only a structured result containing schema version, input digest, score, selected gap, ordered plan, market-source label, and calculation diagnostics.
+4. WHEN identical verified inputs and calculation version are provided, THE AgentCore_Code_Interpreter SHALL return identical numeric scores, selected gap, and ordered plan.
+5. IF the AgentCore_Code_Interpreter result violates score ranges, monotonicity, schema, input digest, or deterministic tie-break rules, THEN THE ProofRoute_Agent SHALL reject the result and preserve the previous verified state.
+6. THE AgentCore_Code_Interpreter SHALL not determine Proof_Challenge pass/fail, authorize Skill_State promotion, or replace the Deterministic_Evaluator.
+7. WHEN the Deterministic_Evaluator returns `passed`, THE ProofRoute_Agent SHALL use that authoritative result as the only evidence that permits promotion before requesting recalculation and replanning.
+8. IF AgentCore_Code_Interpreter is unavailable, THEN THE ProofRoute_Agent SHALL use the existing deterministic local scoring and planning functions, label the calculation source as `local-fallback`, and avoid claiming managed Code Interpreter execution.
+
+### Requirement 18: Official SkillForge Market Gateway with Local Fallback
+
+**User Story:** As a Candidate, I want market evidence from the official SkillForge knowledge base, so that recommendations use the workshop's verified market source while remaining usable during service outages.
+
+#### Acceptance Criteria
+
+1. WHEN market intelligence is required and the Verification_Gate has passed, THE ProofRoute_Agent SHALL query the SkillForge_KB through the Market_Gateway_Tool configured from the SkillForge_Parameter_Manifest.
+2. WHEN the Market_Gateway_Tool returns market evidence, THE ProofRoute_Agent SHALL retain source identifiers or citations supplied by the tool and label the market source as `skillforge-kb`.
+3. WHEN market evidence is transformed into frequencies or job matches, THE AgentCore_Code_Interpreter SHALL use only validated structured evidence records and the deterministic formulas defined by the Skill_Profile contract.
+4. IF the Verification_Gate has not passed or the Market_Gateway_Tool or SkillForge_KB is unavailable, THEN THE ProofRoute_Agent SHALL use the Local_Market_Fallback, label the market source as `local-fallback`, and include a non-secret explanation of the fallback reason.
+5. THE Local_Market_Fallback SHALL preserve the existing validated canonicalization, frequency, gap, score, and monotonic matching behavior.
+6. THE ProofRoute_Agent SHALL not claim that local fallback records came from AWS, SkillForge, AgentCore Gateway, or the SkillForge_KB.
+
+### Requirement 19: Per-User Scoped Memory
+
+**User Story:** As a Candidate, I want my ProofRoute progression isolated from other users, so that my evidence and recommendations remain scoped to my identity.
+
+#### Acceptance Criteria
+
+1. THE Memory_Store SHALL scope every ProofRoute read and write by the authenticated Candidate user ID, the ProofRoute namespace, and a ProofRoute session identifier.
+2. WHEN the ProofRoute_Agent writes a Skill_Profile, plan, challenge outcome, or source label, THE Memory_Store SHALL include schema version, Candidate scope, UTC timestamp, and an idempotency or input-digest field.
+3. WHEN the ProofRoute_Agent retrieves progression, THE Memory_Store SHALL reject records whose Candidate scope or ProofRoute namespace does not match the authenticated request.
+4. IF the authenticated Candidate user ID is absent or invalid, THEN THE ProofRoute_Agent SHALL reject Memory_Store access and SHALL not substitute a shared or default actor ID.
+5. WHEN Memory data is logged or traced, THE ProofRoute_Agent SHALL exclude CV text, submitted code, evidence snippets, secret values, and raw memory payloads from telemetry attributes.
+6. IF Memory_Store is unavailable, THEN THE ProofRoute_Agent SHALL preserve in-request verified state, label persistence as unavailable, and avoid claiming cross-session restoration.
+
+### Requirement 20: Security, Arabic RTL, and Observability
+
+**User Story:** As a Candidate, I want a safe, observable, bilingual-friendly dashboard, so that ProofRoute remains trustworthy and usable in the Riyadh context.
+
+#### Acceptance Criteria
+
+1. THE Deterministic_Evaluator SHALL retain the existing AST allowlist, isolated temporary directory, bounded output, timeout, fail-closed transition, and deterministic hidden-mutant behavior as the authoritative challenge evaluation path.
+2. THE ProofRoute_Agent SHALL pass only bounded structured scoring and planning inputs to AgentCore_Code_Interpreter and SHALL exclude AWS credentials, SSM secret values, session tokens, raw environment dumps, and unrelated user data.
+3. THE ProofRoute_Dashboard SHALL provide lightweight Arabic presentation for primary headings, actions, status labels, validation messages, and result summaries without requiring a separate frontend application.
+4. WHEN Arabic presentation is active, THE ProofRoute_Dashboard SHALL set the relevant content direction to `rtl`, preserve code and numeric calculation blocks as `ltr`, and render the existing workflow without horizontal scrolling at 1280px.
+5. WHERE Arabic presentation is not active, THE ProofRoute_Dashboard SHALL preserve the existing English layout and behavior.
+6. WHEN ProofRoute invokes AgentCore Runtime, Code Interpreter, Gateway, Memory, or the Deterministic_Evaluator, THE ProofRoute_Agent SHALL use the existing logging, tracing, correlation, and CloudWatch/OpenTelemetry paths with operation name, duration, status, source label, and non-secret resource role.
+7. THE ProofRoute_Agent SHALL not place CV content, submitted code, credentials, SSM values, or raw tool payloads in logs, traces, metrics, or Candidate-visible infrastructure errors.
+
+### Requirement 21: Shared Infrastructure Reuse and Evidence-Based Claims
+
+**User Story:** As a system owner, I want ProofRoute to reuse verified shared infrastructure, so that the correction does not create duplicate cost, drift, or misleading AWS claims.
+
+#### Acceptance Criteria
+
+1. THE ProofRoute implementation SHALL reuse the verified Shared_Foundation resources identified by the SkillForge_Parameter_Manifest and existing Starter_Kit deployment.
+2. WHEN infrastructure overlap is discovered, THE Verification_Gate SHALL document the overlapping stack, resource type, identifier fingerprint, ownership evidence, and recommended reuse path without deleting, replacing, importing, or modifying the resource.
+3. THE ProofRoute implementation SHALL not deploy or recreate the Shared_Foundation during verification or feature integration.
+4. IF a required shared resource cannot be verified, THEN THE ProofRoute implementation SHALL mark the dependent capability as blocked or use an explicitly labeled local fallback rather than create a replacement resource.
+5. WHEN documentation or UI text describes an AWS-backed action, THE ProofRoute implementation SHALL make the claim only when sanitized verification or runtime evidence confirms the action occurred.
+6. WHEN official SkillForge resources and illustrative user commands conflict, THE ProofRoute implementation SHALL prefer the verified official SkillForge resource and record the discrepancy without executing destructive remediation.
+7. WHEN all implementation and validation tasks complete, THE implementation workflow SHALL run a credential and secret scan, full Python tests, CDK build and tests, targeted integration tests, and non-destructive smoke checks before any push.
+8. IF the Verification_Gate or any required validation is blocked or fails, THEN THE implementation workflow SHALL not push changes and SHALL record the exact sanitized blocker and manual remediation commands in `docs/PROJECT_STATE.md`.

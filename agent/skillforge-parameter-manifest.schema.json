@@ -1,0 +1,48 @@
+{
+  "title": "ProofRoute SkillForge name-only parameter manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "parameters"],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "parameters": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["role", "path"],
+        "properties": {
+          "role": {
+            "enum": [
+              "code_interpreter",
+              "gateway",
+              "knowledge_base",
+              "memory",
+              "profile_table",
+              "progression_table",
+              "market_bucket"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^/app/workshop/[A-Za-z0-9_.\\-/]+$"
+          }
+        }
+      },
+      "allOf": [
+        { "contains": { "properties": { "role": { "const": "code_interpreter" } }, "required": ["role"] }, "minContains": 1, "maxContains": 1 },
+        { "contains": { "properties": { "role": { "const": "gateway" } }, "required": ["role"] }, "minContains": 1, "maxContains": 1 },
+        { "contains": { "properties": { "role": { "const": "knowledge_base" } }, "required": ["role"] }, "minContains": 1, "maxContains": 1 },
+        { "contains": { "properties": { "role": { "const": "memory" } }, "required": ["role"] }, "minContains": 1, "maxContains": 1 },
+        { "contains": { "properties": { "role": { "const": "profile_table" } }, "required": ["role"] }, "minContains": 1, "maxContains": 1 },
+        { "contains": { "properties": { "role": { "const": "progression_table" } }, "required": ["role"] }, "minContains": 1, "maxContains": 1 },
+        { "contains": { "properties": { "role": { "const": "market_bucket" } }, "required": ["role"] }, "minContains": 1, "maxContains": 1 }
+      ]
+    }
+  }
+}
